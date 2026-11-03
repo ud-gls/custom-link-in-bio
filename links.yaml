@@ -1,0 +1,117 @@
+profile:
+  name: "Your Name"
+  handle: "@yourhandle"
+  bio: "Tech, AI, Moto Lifestyle & Curated Gear"
+  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
+  verified: true
+  location: "India"
+  status: "New video & blog post out now!"
+  disclosure: "Some links below are affiliate links. I may earn a small commission at no extra cost to you."
+
+theme: "cyberpunk" # Options: cyberpunk, sunset, minimal
+
+analytics:
+  enabled: false # Set to true when you add your Firebase config later
+  firebaseConfig:
+    apiKey: ""
+    authDomain: ""
+    projectId: ""
+    storageBucket: ""
+    messagingSenderId: ""
+    appId: ""
+
+featured:
+  enabled: true
+  badge: "LATEST VIDEO"
+  title: "Building an Automated AI Workflow & Creator Setup"
+  subtitle: "Watch the full breakdown on YouTube"
+  youtubeId: "dQw4w9WgXcQ"
+  url: "https://youtube.com"
+
+socials:
+  - platform: "youtube"
+    url: "https://youtube.com/@yourchannel"
+    label: "YouTube"
+  - platform: "instagram"
+    url: "https://instagram.com/yourhandle"
+    label: "Instagram"
+  - platform: "facebook"
+    url: "https://facebook.com/yourpage"
+    label: "Facebook"
+  - platform: "github"
+    url: "https://github.com/yourusername"
+    label: "GitHub"
+
+categories:
+  - id: "all"
+    label: "All"
+  - id: "affiliate"
+    label: "Affiliate Gear 🛒"
+  - id: "blog"
+    label: "Blogs & Guides ✍️"
+  - id: "socials"
+    label: "Channels 🌐"
+
+links:
+  - id: "gear-mic"
+    title: "My Studio Microphone Setup"
+    subtitle: "Crisp voiceover audio for reels & tutorials"
+    url: "https://amazon.in"
+    category: "affiliate"
+    size: "large" # Options: large (full width), medium (half width)
+    icon: "mic"
+    accent: "#06b6d4"
+    badge: "TOP PICK"
+    price: "₹8,499"
+    coupon: "CREATOR10"
+
+  - id: "gear-action-cam"
+    title: "Night Ride Action Camera & Helmet Mount"
+    subtitle: "4K low-light stabilization for city rides"
+    url: "https://amazon.in"
+    category: "affiliate"
+    size: "medium"
+    icon: "camera"
+    accent: "#f97316"
+    price: "₹24,990"
+
+  - id: "blog-ai-agents"
+    title: "How to Build Multi-Agent Workflows for Content"
+    subtitle: "Complete architecture guide & prompts"
+    url: "https://yourblog.com/ai-agents"
+    category: "blog"
+    size: "medium"
+    icon: "book-open"
+    accent: "#a855f7"
+    readTime: "6 min read"
+    date: "Nov 2026"
+
+  - id: "blog-sql-guide"
+    title: "45-Day SQL Mastery Roadmap & Cheat Sheet"
+    subtitle: "Free queries, practice sets & interview prep"
+    url: "https://yourblog.com/sql-roadmap"
+    category: "blog"
+    size: "large"
+    icon: "terminal"
+    accent: "#10b981"
+    badge: "FREE GUIDE"
+    readTime: "8 min read"
+    date: "Oct 2026"
+
+  - id: "yt-main"
+    title: "Subscribe on YouTube"
+    subtitle: "Deep-dive tech tutorials, AI tools & psychology"
+    url: "https://youtube.com"
+    category: "socials"
+    size: "medium"
+    icon: "youtube"
+    accent: "#ef4444"
+
+  - id: "ig-main"
+    title: "Follow on Instagram"
+    subtitle: "Daily reels, late-night rides & behind the scenes"
+    url: "https://instagram.com"
+    category: "socials"
+    size: "medium"
+    icon: "instagram"
+    accent: "#ec4899"
