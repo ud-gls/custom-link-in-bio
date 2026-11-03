@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Hub — Dynamic Bento Bio</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- js-yaml for parsing external links.yaml -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #06070a;
+      --card-bg: rgba(18, 21, 30, 0.65);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --orb-1: #06b6d4;
+      --orb-2: #a855f7;
+      --orb-3: #ec4899;
+    }
+
+    [data-theme="sunset"] {
+      --bg-primary: #0f070a;
+      --card-bg: rgba(31, 16, 22, 0.68);
+      --card-border: rgba(251, 146, 60, 0.14);
+      --orb-1: #f97316;
+      --orb-2: #ec4899;
+      --orb-3: #eab308;
+    }
+
+    [data-theme="minimal"] {
+      --bg-primary: #09090b;
+      --card-bg: rgba(24, 24, 27, 0.78);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --orb-1: #52525b;
+      --orb-2: #3f3f46;
+      --orb-3: #71717a;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Animated Aurora Background Orbs */
+    .aurora-orb {
+      position: fixed;
+      border-radius: 9999px;
+      filter: blur(110px);
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 0;
+      transition: background 0.6s ease;
+    }
+
+    .orb-1 {
+      width: 380px;
+      height: 380px;
+      background: var(--orb-1);
+      top: -80px;
+      left: -80px;
+      animation: floatOrb 14s ease-in-out infinite alternate;
+    }
+
+    .orb-2 {
+      width: 420px;
+      height: 420px;
+      background: var(--orb-2);
+      bottom: -100px;
+      right: -80px;
+      animation: floatOrb 18s ease-in-out infinite alternate-reverse;
+    }
+
+    .orb-3 {
+      width: 280px;
+      height: 280px;
+      background: var(--orb-3);
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: floatOrb 16s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -30px) scale(1.08); }
+    }
+
+    /* Glassmorphic 3D Bento Cards */
+    .bento-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+      transform-style: preserve-3d;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bento-card:hover {
+      border-color: var(--card-accent, rgba(255, 255, 255, 0.28));
+      box-shadow: 0 18px 40px -15px var(--card-glow, rgba(6, 182, 212, 0.25));
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen relative selection:bg-cyan-500 selection:text-black">
+
+  <!-- Background Orbs -->
+  <div class="aurora-orb orb-1"></div>
+  <div class="aurora-orb orb-2"></div>
+  <div class="aurora-orb orb-3"></div>
+
+  <!-- Top Utility Bar -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-black/30 border-b border-white/10">
+    <div class="max-w-2xl mx-auto px-4 py-2.5 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="source-indicator" class="font-mono-code text-slate-300">Loading config...</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="cycleTheme()" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 flex items-center gap-1.5 transition" title="Switch Theme">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span id="theme-label" class="capitalize hidden sm:inline">Cyberpunk</span>
+        </button>
+
+        <button onclick="openModal('analytics-modal')" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 flex items-center gap-1.5 transition">
+          <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span id="top-visitor-count" class="font-mono-code">1</span>
+          <span class="hidden sm:inline text-slate-400">Visitors</span>
+        </button>
+
+        <button onclick="openModal('config-modal')" class="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 flex items-center gap-1.5 font-medium transition">
+          <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
+          <span>links.yaml</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-2xl mx-auto px-4 pt-8 pb-20">
+
+    <!-- Profile Header -->
+    <section id="profile-section" class="text-center mb-7"></section>
+
+    <!-- Social Pill Row -->
+    <section id="socials-section" class="flex flex-wrap items-center justify-center gap-2.5 mb-7"></section>
+
+    <!-- Featured YouTube Highlight -->
+    <section id="featured-section" class="mb-7 hidden"></section>
+
+    <!-- Search & Category Filter Tabs -->
+    <section class="mb-6 space-y-3">
+      <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-1" id="category-tabs"></div>
+
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search gear, blogs, coupon codes, or channels..."
+          oninput="handleSearch(this.value)"
+          class="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-cyan-400/50 focus:outline-none text-sm text-white placeholder-slate-400 backdrop-blur-md transition"
+        />
+      </div>
+    </section>
+
+    <!-- Dynamic Bento Grid -->
+    <section id="bento-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></section>
+
+    <!-- Footer & Affiliate Disclosure -->
+    <footer class="mt-12 pt-6 border-t border-white/10 text-center space-y-2">
+      <p id="disclosure-text" class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed"></p>
+      <p class="text-[11px] text-slate-500 font-mono-code">
+        Powered by <span class="text-slate-300">links.yaml</span> on GitHub Pages
+      </p>
+    </footer>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-xs text-cyan-200 shadow-2xl flex items-center gap-2 backdrop-blur-md">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-cyan-400"></i>
+    <span id="toast-message">Copied to clipboard!</span>
+  </div>
+
+  <!-- Analytics Modal -->
+  <div id="analytics-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/15 rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-5 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="activity" class="w-5 h-5 text-purple-400"></i>
+          <h3 class="font-display font-bold text-lg">Visitor & Click Analytics</h3>
+        </div>
+        <button onclick="closeModal('analytics-modal')" class="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div id="stat-visitors" class="font-display text-2xl font-bold text-cyan-400">1</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Unique Visitors</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div id="stat-clicks" class="font-display text-2xl font-bold text-purple-400">0</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Button Clicks</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <div id="stat-ctr" class="font-display text-2xl font-bold text-emerald-400">0%</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Click Rate (CTR)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-xs font-medium text-slate-300 mb-2.5 flex items-center justify-between">
+          <span>Per-Button Click Breakdown</span>
+          <span id="analytics-mode-badge" class="font-mono-code text-[11px] px-2 py-0.5 rounded bg-white/10 text-slate-300">Local Mode</span>
+        </div>
+        <div id="click-breakdown-list" class="space-y-2.5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live YAML Config Viewer / Editor Modal -->
+  <div id="config-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/15 rounded-2xl max-w-2xl w-full p-5 shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+        <div>
+          <h3 class="font-display font-bold text-lg flex items-center gap-2">
+            <i data-lucide="file-code" class="w-5 h-5 text-cyan-400"></i>
+            <span>Live links.yaml Configuration</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Edit below to test live, or copy into your GitHub repository's <code class="text-cyan-300">links.yaml</code> file.</p>
+        </div>
+        <button onclick="closeModal('config-modal')" class="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <textarea
+        id="yaml-editor"
+        spellcheck="false"
+        class="w-full flex-1 min-h-[320px] p-3.5 rounded-xl bg-black/60 border border-white/15 font-mono-code text-xs text-cyan-100 focus:outline-none focus:border-cyan-400 resize-none leading-relaxed"
+      ></textarea>
+
+      <div id="yaml-error" class="hidden mt-2 text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 font-mono-code"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-3 mt-3 border-t border-white/10">
+        <button onclick="copyYamlToClipboard()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-medium text-white flex items-center gap-1.5 transition">
+          <i data-lucide="copy" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Copy links.yaml</span>
+        </button>
+
+        <button onclick="applyEditorConfig()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <span>Apply Live Preview</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Modular SDK (Optional - Activated only when analytics.enabled = true in links.yaml) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // Default Fallback YAML if ./links.yaml is not found yet
+    const DEFAULT_YAML = `profile:
+  name: "Your Name"
+  handle: "@yourhandle"
+  bio: "Tech Lead, AI Builder & Moto Creator"
+  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
+  verified: true
+  location: "India"
+  status: "New AI tutorial & gear review live!"
+  disclosure: "Some links below are affiliate links. I may earn a small commission at no extra cost to you."
+
+theme: "cyberpunk"
+
+analytics:
+  enabled: false
+  firebaseConfig:
+    apiKey: ""
+    authDomain: ""
+    projectId: ""
+    storageBucket: ""
+    messagingSenderId: ""
+    appId: ""
+
+featured:
+  enabled: true
+  badge: "LATEST VIDEO"
+  title: "Building an Automated Multi-Agent AI Content Workflow"
+  subtitle: "Watch the full architecture breakdown on YouTube"
+  youtubeId: "dQw4w9WgXcQ"
+  url: "https://youtube.com"
+
+socials:
+  - platform: "youtube"
+    url: "https://youtube.com"
+    label: "YouTube"
+  - platform: "instagram"
+    url: "https://instagram.com"
+    label: "Instagram"
+  - platform: "facebook"
+    url: "https://facebook.com"
+    label: "Facebook"
+  - platform: "github"
+    url: "https://github.com"
+    label: "GitHub"
+
+categories:
+  - id: "all"
+    label: "All"
+  - id: "affiliate"
+    label: "Affiliate Gear 🛒"
+  - id: "blog"
+    label: "Blogs & Guides ✍️"
+  - id: "socials"
+    label: "Channels 🌐"
+
+links:
+  - id: "gear-mic"
+    title: "Studio Condenser Microphone Kit"
+    subtitle: "Crisp voiceover audio for reels & YouTube tutorials"
+    url: "https://amazon.in"
+    category: "affiliate"
+    size: "large"
+    icon: "mic"
+    accent: "#06b6d4"
+    badge: "BESTSELLER"
+    price: "₹8,499"
+    coupon: "CREATOR10"
+
+  - id: "gear-helmet-cam"
+    title: "4K Action Cam for Night City Rides"
+    subtitle: "Ultra-wide stabilization & helmet chin mount"
+    url: "https://amazon.in"
+    category: "affiliate"
+    size: "medium"
+    icon: "camera"
+    accent: "#f97316"
+    price: "₹24,990"
+
+  - id: "blog-ai-agents"
+    title: "Designing Multi-Agent Workflows for Social Media"
+    subtitle: "Complete architecture guide, prompts & scripts"
+    url: "https://github.com"
+    category: "blog"
+    size: "medium"
+    icon: "cpu"
+    accent: "#a855f7"
+    readTime: "6 min read"
+    date: "Nov 2026"
+
+  - id: "blog-sql-series"
+    title: "45-Day SQL Coding Challenge & Cheat Sheet"
+    subtitle: "Master real-world queries from scratch"
+    url: "https://github.com"
+    category: "blog"
+    size: "large"
+    icon: "terminal"
+    accent: "#10b981"
+    badge: "FREE ROADMAP"
+    readTime: "8 min read"
+    date: "Oct 2026"
+
+  - id: "yt-channel"
+    title: "Subscribe on YouTube"
+    subtitle: "AI coding, developer tools & human psychology"
+    url: "https://youtube.com"
+    category: "socials"
+    size: "medium"
+    icon: "youtube"
+    accent: "#ef4444"
+
+  - id: "ig-channel"
+    title: "Follow on Instagram"
+    subtitle: "Daily reels, late-night rides & creator insights"
+    url: "https://instagram.com"
+    category: "socials"
+    size: "medium"
+    icon: "instagram"
+    accent: "#ec4899"`;
+
+    let appConfig = {};
+    let activeCategory = "all";
+    let searchQuery = "";
+    let statsData = {
+      uniqueVisitors: 1,
+      clicks: {}
+    };
+    let firestoreDb = null;
+
+    // Load LocalStorage fallback stats
+    function loadLocalStats() {
+      const saved = localStorage.getItem("bento_hub_stats_v1");
+      if (saved) {
+        try {
+          statsData = JSON.parse(saved);
+        } catch (e) {}
+      }
+      if (!localStorage.getItem("bento_visitor_counted")) {
+        localStorage.setItem("bento_visitor_counted", "true");
+      }
+      updateStatsUI();
+    }
+
+    function saveLocalStats() {
+      localStorage.setItem("bento_hub_stats_v1", JSON.stringify(statsData));
+      updateStatsUI();
+    }
+
+    // Initialize Firebase if enabled in YAML
+    async function initFirebaseIfConfigured(analyticsCfg) {
+      const badge = document.getElementById("analytics-mode-badge");
+      if (!analyticsCfg || !analyticsCfg.enabled || !analyticsCfg.firebaseConfig?.projectId) {
+        badge.textContent = "Local Storage Mode";
+        return;
+      }
+
+      try {
+        const app = initializeApp(analyticsCfg.firebaseConfig);
+        const auth = getAuth(app);
+        firestoreDb = getFirestore(app);
+        const cred = await signInAnonymously(auth);
+        badge.textContent = "Firebase Live";
+        badge.className = "font-mono-code text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300";
+
+        const statsRef = doc(firestoreDb, "bento_analytics", "global_stats");
+        const visitorRef = doc(firestoreDb, "bento_visitors", cred.user.uid);
+
+        const visitorSnap = await getDoc(visitorRef);
+        if (!visitorSnap.exists()) {
+          await setDoc(visitorRef, { firstSeen: Date.now() });
+          await setDoc(statsRef, { uniqueVisitors: increment(1) }, { merge: true });
+        }
+
+        onSnapshot(statsRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            statsData.uniqueVisitors = data.uniqueVisitors || 1;
+            statsData.clicks = data.clicks || {};
+            updateStatsUI();
+            renderBentoGrid();
+          }
+        });
+      } catch (err) {
+        console.warn("Firebase not active, using local analytics fallback:", err.message);
+      }
+    }
+
+    // Record link click
+    window.recordClick = async function(linkId) {
+      statsData.clicks[linkId] = (statsData.clicks[linkId] || 0) + 1;
+      saveLocalStats();
+      renderBentoGrid();
+
+      if (firestoreDb) {
+        try {
+          const statsRef = doc(firestoreDb, "bento_analytics", "global_stats");
+          await setDoc(statsRef, {
+            clicks: { [linkId]: increment(1) }
+          }, { merge: true });
+        } catch (e) {}
+      }
+    };
+
+    // Copy coupon code without triggering parent anchor navigation
+    window.copyCoupon = function(event, code) {
+      event.preventDefault();
+      event.stopPropagation();
+      navigator.clipboard.writeText(code);
+      showToast(`Coupon "${code}" copied!`);
+    };
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-message").textContent = msg;
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 2400);
+    }
+
+    // Fetch external ./links.yaml or ./links.json with cache busting
+    async function loadExternalConfig() {
+      const indicator = document.getElementById("source-indicator");
+      loadLocalStats();
+
+      try {
+        const res = await fetch(`./links.yaml?t=${Date.now()}`);
+        if (res.ok) {
+          const yamlText = await res.text();
+          appConfig = jsyaml.load(yamlText);
+          document.getElementById("yaml-editor").value = yamlText;
+          indicator.textContent = "links.yaml (Live)";
+          renderAll();
+          initFirebaseIfConfigured(appConfig.analytics);
+          return;
+        }
+      } catch (e) {}
+
+      try {
+        const resJson = await fetch(`./links.json?t=${Date.now()}`);
+        if (resJson.ok) {
+          appConfig = await resJson.json();
+          document.getElementById("yaml-editor").value = jsyaml.dump(appConfig);
+          indicator.textContent = "links.json (Live)";
+          renderAll();
+          initFirebaseIfConfigured(appConfig.analytics);
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback to embedded default YAML
+      appConfig = jsyaml.load(DEFAULT_YAML);
+      document.getElementById("yaml-editor").value = DEFAULT_YAML;
+      indicator.textContent = "Default Config (Create links.yaml)";
+      renderAll();
+    }
+
+    function renderAll() {
+      applyTheme(appConfig.theme || "cyberpunk");
+      renderProfile();
+      renderSocials();
+      renderFeatured();
+      renderCategories();
+      renderBentoGrid();
+      updateStatsUI();
+      lucide.createIcons();
+    }
+
+    function applyTheme(themeName) {
+      document.documentElement.setAttribute("data-theme", themeName);
+      const label = document.getElementById("theme-label");
+      if (label) label.textContent = themeName;
+    }
+
+    window.cycleTheme = function() {
+      const themes = ["cyberpunk", "sunset", "minimal"];
+      const current = document.documentElement.getAttribute("data-theme") || "cyberpunk";
+      const next = themes[(themes.indexOf(current) + 1) % themes.length];
+      appConfig.theme = next;
+      applyTheme(next);
+    };
+
+    function renderProfile() {
+      const p = appConfig.profile || {};
+      const section = document.getElementById("profile-section");
+      section.innerHTML = `
+        <div class="relative inline-block mb-3">
+          <img src="${p.avatar || ''}" alt="${p.name || 'Avatar'}" class="w-24 h-24 rounded-full object-cover border-2 border-cyan-400/50 shadow-xl mx-auto" />
+          ${p.verified ? `<span class="absolute bottom-0 right-0 bg-cyan-500 text-black p-1 rounded-full shadow-lg" title="Verified"><i data-lucide="badge-check" class="w-4 h-4"></i></span>` : ''}
+        </div>
+        <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white">${p.name || ''}</h1>
+        <p class="text-xs font-mono-code text-cyan-400 mt-0.5">${p.handle || ''} ${p.location ? `• ${p.location}` : ''}</p>
+        <p class="text-sm text-slate-300 max-w-md mx-auto mt-2">${p.bio || ''}</p>
+        ${p.status ? `
+          <div class="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+            <span>${p.status}</span>
+          </div>
+        ` : ''}
+      `;
+      document.getElementById("disclosure-text").textContent = p.disclosure || "";
+    }
+
+    function renderSocials() {
+      const socials = appConfig.socials || [];
+      const container = document.getElementById("socials-section");
+      container.innerHTML = socials.map((s, idx) => `
+        <a
+          href="${s.url}"
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick="recordClick('social-${s.platform}-${idx}')"
+          class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/40 text-xs font-medium text-slate-200 flex items-center gap-2 transition"
+        >
+          <i data-lucide="${s.platform}" class="w-4 h-4 text-cyan-400"></i>
+          <span>${s.label || s.platform}</span>
+        </a>
+      `).join("");
+    }
+
+    function renderFeatured() {
+      const f = appConfig.featured;
+      const section = document.getElementById("featured-section");
+      if (!f || !f.enabled) {
+        section.classList.add("hidden");
+        return;
+      }
+      section.classList.remove("hidden");
+      section.innerHTML = `
+        <div class="bento-card rounded-2xl p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
+              ${f.badge || 'FEATURED'}
+            </span>
+            <a href="${f.url || '#'}" target="_blank" rel="noopener" onclick="recordClick('featured-video')" class="text-xs text-cyan-400 hover:underline flex items-center gap-1">
+              <span>Open Channel</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+          </div>
+          <h2 class="font-display font-bold text-base sm:text-lg text-white">${f.title || ''}</h2>
+          <p class="text-xs text-slate-400 mb-3">${f.subtitle || ''}</p>
+          ${f.youtubeId ? `
+            <div class="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black">
+              <iframe
+                class="w-full h-full"
+                src="https://www.youtube.com/embed/${f.youtubeId}"
+                title="${f.title || 'Featured Video'}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderCategories() {
+      const categories = appConfig.categories || [{ id: "all", label: "All" }];
+      const allLinks = appConfig.links || [];
+      const container = document.getElementById("category-tabs");
+
+      container.innerHTML = categories.map(cat => {
+        const count = cat.id === "all"
+          ? allLinks.length
+          : allLinks.filter(l => l.category === cat.id).length;
+        const isActive = activeCategory === cat.id;
+        return `
+          <button
+            onclick="selectCategory('${cat.id}')"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap flex items-center gap-1.5 transition ${
+              isActive
+                ? 'bg-cyan-500 text-black font-semibold shadow-lg shadow-cyan-500/20'
+                : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
+            }"
+          >
+            <span>${cat.label}</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-400'}">${count}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    window.selectCategory = function(catId) {
+      activeCategory = catId;
+      renderCategories();
+      renderBentoGrid();
+      lucide.createIcons();
+    };
+
+    window.handleSearch = function(val) {
+      searchQuery = val.trim().toLowerCase();
+      renderBentoGrid();
+      lucide.createIcons();
+    };
+
+    function renderBentoGrid() {
+      const links = appConfig.links || [];
+      const grid = document.getElementById("bento-grid");
+
+      const filtered = links.filter(item => {
+        const matchesCat = activeCategory === "all" || item.category === activeCategory;
+        const matchesQuery = !searchQuery ||
+          (item.title && item.title.toLowerCase().includes(searchQuery)) ||
+          (item.subtitle && item.subtitle.toLowerCase().includes(searchQuery)) ||
+          (item.coupon && item.coupon.toLowerCase().includes(searchQuery));
+        return matchesCat && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-10 text-slate-400 text-sm">
+            No links match your filter.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isLarge = item.size === "large";
+        const clicks = statsData.clicks[item.id] || 0;
+        const accent = item.accent || "#06b6d4";
+        const isAffiliate = item.category === "affiliate";
+
+        return `
+          <a
+            href="${item.url}"
+            target="_blank"
+            rel="${isAffiliate ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}"
+            onclick="recordClick('${item.id}')"
+            style="--card-accent: ${accent}; --card-glow: ${accent}33;"
+            class="bento-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between group ${isLarge ? 'sm:col-span-2' : 'col-span-1'}"
+          >
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center border border-white/15" style="background: ${accent}22; color: ${accent}">
+                  <i data-lucide="${item.icon || 'link'}" class="w-5 h-5"></i>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${item.badge ? `
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-mono-code font-semibold border border-white/15" style="background: ${accent}25; color: ${accent}">
+                      ${item.badge}
+                    </span>
+                  ` : ''}
+                  ${item.price ? `
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-mono-code font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      ${item.price}
+                    </span>
+                  ` : ''}
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-mono-code bg-white/5 text-slate-300 border border-white/10">
+                    🔥 ${clicks}
+                  </span>
+                </div>
+              </div>
+
+              <h3 class="font-display font-bold text-base sm:text-lg text-white group-hover:text-cyan-300 transition flex items-center gap-1.5">
+                <span>${item.title}</span>
+                <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"></i>
+              </h3>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">${item.subtitle || ''}</p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+              <div class="flex items-center gap-2">
+                ${item.readTime ? `<span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${item.readTime}</span>` : ''}
+                ${item.date ? `<span>• ${item.date}</span>` : ''}
+                ${!item.readTime && !item.date ? `<span class="capitalize">${item.category || 'link'}</span>` : ''}
+              </div>
+
+              ${item.coupon ? `
+                <button
+                  type="button"
+                  onclick="copyCoupon(event, '${item.coupon}')"
+                  class="px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/30 border border-cyan-400/30 text-cyan-300 font-mono-code text-[11px] flex items-center gap-1 transition"
+                >
+                  <i data-lucide="ticket" class="w-3 h-3"></i>
+                  <span>Code: ${item.coupon}</span>
+                </button>
+              ` : ''}
+            </div>
+          </a>
+        `;
+      }).join("");
+    }
+
+    function updateStatsUI() {
+      const totalVisitors = statsData.uniqueVisitors || 1;
+      const totalClicks = Object.values(statsData.clicks).reduce((a, b) => a + b, 0);
+      const ctr = Math.min(100, Math.round((totalClicks / totalVisitors) * 100));
+
+      document.getElementById("top-visitor-count").textContent = totalVisitors;
+      document.getElementById("stat-visitors").textContent = totalVisitors;
+      document.getElementById("stat-clicks").textContent = totalClicks;
+      document.getElementById("stat-ctr").textContent = `${ctr}%`;
+
+      const listEl = document.getElementById("click-breakdown-list");
+      const links = appConfig.links || [];
+      const maxClicks = Math.max(1, ...links.map(l => statsData.clicks[l.id] || 0));
+
+      listEl.innerHTML = links.map(l => {
+        const c = statsData.clicks[l.id] || 0;
+        const pct = Math.round((c / maxClicks) * 100);
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-200 font-medium truncate pr-2">${l.title}</span>
+              <span class="font-mono-code text-cyan-400">${c} clicks</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Modal & Live Config Editor Helpers
+    window.openModal = function(id) {
+      document.getElementById(id).classList.remove("hidden");
+      updateStatsUI();
+      lucide.createIcons();
+    };
+
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.add("hidden");
+    };
+
+    window.applyEditorConfig = function() {
+      const raw = document.getElementById("yaml-editor").value;
+      const errBox = document.getElementById("yaml-error");
+      try {
+        const parsed = jsyaml.load(raw);
+        appConfig = parsed;
+        errBox.classList.add("hidden");
+        renderAll();
+        closeModal("config-modal");
+        showToast("Live YAML configuration applied!");
+      } catch (e) {
+        errBox.textContent = `YAML Syntax Error: ${e.message}`;
+        errBox.classList.remove("hidden");
+      }
+    };
+
+    window.copyYamlToClipboard = function() {
+      const raw = document.getElementById("yaml-editor").value;
+      navigator.clipboard.writeText(raw);
+      showToast("links.yaml copied to clipboard!");
+    };
+
+    // Start App
+    loadExternalConfig();
+  </script>
+</body>
+</html>
