@@ -3,7 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Creator Hub — Dynamic Bento Bio</title>
+
+  <!-- Primary SEO Meta Tags (Dynamically updated via links.yaml) -->
+  <title id="meta-title">Creator Hub — Official Links & Resources</title>
+  <meta id="meta-desc" name="description" content="Official social channels, technical guides, and curated gear." />
+  <meta id="meta-keywords" name="keywords" content="creator hub, links, tutorials, social media, tech" />
+  <meta id="meta-robots" name="robots" content="index, follow" />
+  <link id="meta-canonical" rel="canonical" href="https://github.io" />
+
+  <!-- OpenGraph / Facebook / Instagram Preview Meta Tags -->
+  <meta property="og:type" content="profile" />
+  <meta id="og-title" property="og:title" content="Creator Hub — Official Links" />
+  <meta id="og-desc" property="og:description" content="Official social channels, technical guides, and curated gear." />
+  <meta id="og-image" property="og:image" content="" />
+  <meta id="og-url" property="og:url" content="" />
+
+  <!-- Twitter / X Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta id="tw-site" name="twitter:site" content="" />
+  <meta id="tw-title" name="twitter:title" content="Creator Hub — Official Links" />
+  <meta id="tw-desc" name="twitter:description" content="Official social channels, technical guides, and curated gear." />
+  <meta id="tw-image" name="twitter:image" content="" />
+
+  <!-- Google Rich Snippet Schema.org JSON-LD (Dynamically populated) -->
+  <script id="schema-jsonld" type="application/ld+json">{}</script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -63,7 +86,6 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Animated Aurora Background Orbs */
     .aurora-orb {
       position: fixed;
       border-radius: 9999px;
@@ -107,7 +129,6 @@
       100% { transform: translate(40px, -30px) scale(1.08); }
     }
 
-    /* Glassmorphic 3D Bento Cards */
     .bento-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -122,6 +143,7 @@
     .bento-card:hover {
       border-color: var(--card-accent, rgba(255, 255, 255, 0.28));
       box-shadow: 0 18px 40px -15px var(--card-glow, rgba(6, 182, 212, 0.25));
+      transform: translateY(-2px);
     }
 
     .no-scrollbar::-webkit-scrollbar {
@@ -168,28 +190,28 @@
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Content -->
   <main class="relative z-10 max-w-2xl mx-auto px-4 pt-8 pb-20">
 
-    <!-- Profile Header -->
+    <!-- Profile Header (With Live Social Avatar Sync) -->
     <section id="profile-section" class="text-center mb-7"></section>
 
-    <!-- Social Pill Row -->
+    <!-- Quick Social Pill Row -->
     <section id="socials-section" class="flex flex-wrap items-center justify-center gap-2.5 mb-7"></section>
 
     <!-- Featured YouTube Highlight -->
     <section id="featured-section" class="mb-7 hidden"></section>
 
-    <!-- Search & Category Filter Tabs -->
+    <!-- Search & Smart Conditional Category Filter Tabs -->
     <section class="mb-6 space-y-3">
-      <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-1" id="category-tabs"></div>
+      <div id="category-tabs-wrapper" class="flex items-center justify-start gap-2 overflow-x-auto no-scrollbar pb-1"></div>
 
       <div class="relative">
         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
         <input
           id="search-input"
           type="text"
-          placeholder="Search gear, blogs, coupon codes, or channels..."
+          placeholder="Search channels, gear, blogs, or coupon codes..."
           oninput="handleSearch(this.value)"
           class="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-cyan-400/50 focus:outline-none text-sm text-white placeholder-slate-400 backdrop-blur-md transition"
         />
@@ -199,11 +221,15 @@
     <!-- Dynamic Bento Grid -->
     <section id="bento-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></section>
 
-    <!-- Footer & Affiliate Disclosure -->
-    <footer class="mt-12 pt-6 border-t border-white/10 text-center space-y-2">
-      <p id="disclosure-text" class="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed"></p>
+    <!-- Footer & Automatic Affiliate Disclosure -->
+    <footer class="mt-12 pt-6 border-t border-white/10 text-center space-y-3">
+      <!-- Automatically hidden when zero affiliate links exist -->
+      <div id="disclosure-box" class="hidden px-4 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20 max-w-lg mx-auto">
+        <p id="disclosure-text" class="text-xs text-amber-200/80 leading-relaxed"></p>
+      </div>
+
       <p class="text-[11px] text-slate-500 font-mono-code">
-        Powered by <span class="text-slate-300">links.yaml</span> on GitHub Pages
+        Powered by <span class="text-slate-300">links.yaml</span> • SEO & Schema.org Enabled
       </p>
     </footer>
   </main>
@@ -261,7 +287,7 @@
             <i data-lucide="file-code" class="w-5 h-5 text-cyan-400"></i>
             <span>Live links.yaml Configuration</span>
           </h3>
-          <p class="text-xs text-slate-400 mt-0.5">Edit below to test live, or copy into your GitHub repository's <code class="text-cyan-300">links.yaml</code> file.</p>
+          <p class="text-xs text-slate-400 mt-0.5">Test removing affiliate or blog items below—empty tabs and the FTC notice hide automatically.</p>
         </div>
         <button onclick="closeModal('config-modal')" class="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -290,22 +316,32 @@
     </div>
   </div>
 
-  <!-- Firebase Modular SDK (Optional - Activated only when analytics.enabled = true in links.yaml) -->
+  <!-- Application Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    // Default Fallback YAML if ./links.yaml is not found yet
-    const DEFAULT_YAML = `profile:
+    const DEFAULT_YAML = `seo:
+  title: "Creator Hub — AI, Tech Tutorials & Moto Lifestyle"
+  description: "Official links, YouTube tutorials, AI engineering guides, and curated riding gear."
+  keywords: "AI tutorials, developer tools, software engineering, motorcycle gear, content creator"
+  canonicalUrl: "https://yourusername.github.io"
+  ogImage: "https://unavatar.io/github/torvalds"
+  twitterHandle: "@yourhandle"
+  robots: "index, follow"
+
+profile:
   name: "Your Name"
   handle: "@yourhandle"
-  bio: "Tech Lead, AI Builder & Moto Creator"
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
+  bio: "Tech Lead, AI Educator & Motorcycle Enthusiast"
+  avatarSource: "github"
+  avatarHandle: "torvalds"
+  avatarFallback: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
   verified: true
   location: "India"
-  status: "New AI tutorial & gear review live!"
-  disclosure: "Some links below are affiliate links. I may earn a small commission at no extra cost to you."
+  status: "New AI tutorial & night ride reel out now!"
+  disclosure: "FTC Disclosure: Some links on this page are affiliate links. I may earn a small commission at no extra cost to you."
 
 theme: "cyberpunk"
 
@@ -329,65 +365,82 @@ featured:
 
 socials:
   - platform: "youtube"
-    url: "https://youtube.com"
+    url: "https://youtube.com/@yourchannel"
     label: "YouTube"
   - platform: "instagram"
-    url: "https://instagram.com"
+    url: "https://instagram.com/yourhandle"
     label: "Instagram"
   - platform: "facebook"
-    url: "https://facebook.com"
+    url: "https://facebook.com/yourpage"
     label: "Facebook"
   - platform: "github"
-    url: "https://github.com"
+    url: "https://github.com/yourusername"
     label: "GitHub"
 
 categories:
   - id: "all"
     label: "All"
+  - id: "socials"
+    label: "Social Channels 🌐"
   - id: "affiliate"
     label: "Affiliate Gear 🛒"
   - id: "blog"
     label: "Blogs & Guides ✍️"
-  - id: "socials"
-    label: "Channels 🌐"
 
 links:
+  - id: "yt-tech"
+    title: "YouTube — AI & Developer Tutorials"
+    subtitle: "Deep-dive coding guides, LLM workflows & system architecture"
+    url: "https://youtube.com"
+    category: "socials"
+    size: "large"
+    icon: "youtube"
+    accent: "#ef4444"
+    badge: "SUBSCRIBE"
+
+  - id: "ig-psych"
+    title: "Instagram — Human Psychology & Behavior"
+    subtitle: "Short-form visual breakdowns on mindset and decision making"
+    url: "https://instagram.com"
+    category: "socials"
+    size: "medium"
+    icon: "instagram"
+    accent: "#ec4899"
+
+  - id: "ig-moto"
+    title: "Instagram — Late-Night City Rides"
+    subtitle: "Road stories, exhaust notes & machine aesthetics"
+    url: "https://instagram.com"
+    category: "socials"
+    size: "medium"
+    icon: "compass"
+    accent: "#06b6d4"
+
   - id: "gear-mic"
     title: "Studio Condenser Microphone Kit"
     subtitle: "Crisp voiceover audio for reels & YouTube tutorials"
     url: "https://amazon.in"
     category: "affiliate"
-    size: "large"
+    size: "medium"
     icon: "mic"
-    accent: "#06b6d4"
-    badge: "BESTSELLER"
+    accent: "#f97316"
+    badge: "TOP PICK"
     price: "₹8,499"
     coupon: "CREATOR10"
 
   - id: "gear-helmet-cam"
-    title: "4K Action Cam for Night City Rides"
-    subtitle: "Ultra-wide stabilization & helmet chin mount"
+    title: "4K Action Cam for Night Rides"
+    subtitle: "Ultra-wide stabilization & helmet chin mount setup"
     url: "https://amazon.in"
     category: "affiliate"
     size: "medium"
     icon: "camera"
-    accent: "#f97316"
+    accent: "#eab308"
     price: "₹24,990"
-
-  - id: "blog-ai-agents"
-    title: "Designing Multi-Agent Workflows for Social Media"
-    subtitle: "Complete architecture guide, prompts & scripts"
-    url: "https://github.com"
-    category: "blog"
-    size: "medium"
-    icon: "cpu"
-    accent: "#a855f7"
-    readTime: "6 min read"
-    date: "Nov 2026"
 
   - id: "blog-sql-series"
     title: "45-Day SQL Coding Challenge & Cheat Sheet"
-    subtitle: "Master real-world queries from scratch"
+    subtitle: "Master real-world queries and database optimization from scratch"
     url: "https://github.com"
     category: "blog"
     size: "large"
@@ -395,25 +448,7 @@ links:
     accent: "#10b981"
     badge: "FREE ROADMAP"
     readTime: "8 min read"
-    date: "Oct 2026"
-
-  - id: "yt-channel"
-    title: "Subscribe on YouTube"
-    subtitle: "AI coding, developer tools & human psychology"
-    url: "https://youtube.com"
-    category: "socials"
-    size: "medium"
-    icon: "youtube"
-    accent: "#ef4444"
-
-  - id: "ig-channel"
-    title: "Follow on Instagram"
-    subtitle: "Daily reels, late-night rides & creator insights"
-    url: "https://instagram.com"
-    category: "socials"
-    size: "medium"
-    icon: "instagram"
-    accent: "#ec4899"`;
+    date: "Nov 2026"`;
 
     let appConfig = {};
     let activeCategory = "all";
@@ -424,7 +459,82 @@ links:
     };
     let firestoreDb = null;
 
-    // Load LocalStorage fallback stats
+    // Resolve live social profile image URL based on avatarSource & avatarHandle
+    function resolveLiveAvatarUrl(profile = {}) {
+      const source = (profile.avatarSource || "custom").toLowerCase().trim();
+      const handle = (profile.avatarHandle || "").replace(/^@/, "").trim();
+      const fallback = profile.avatarFallback || profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80";
+
+      if (!handle || source === "custom") {
+        return fallback;
+      }
+      if (source === "github") {
+        return `https://github.com/${encodeURIComponent(handle)}.png?size=300`;
+      }
+      // unavatar.io supports youtube, instagram, x, twitter,substack, etc.
+      return `https://unavatar.io/${encodeURIComponent(source)}/${encodeURIComponent(handle)}?fallback=${encodeURIComponent(fallback)}`;
+    }
+
+    // Dynamic SEO & Schema.org JSON-LD Head Updater
+    function applySEOConfig() {
+      const seo = appConfig.seo || {};
+      const profile = appConfig.profile || {};
+      const socials = appConfig.socials || [];
+      const liveAvatar = resolveLiveAvatarUrl(profile);
+
+      const pageTitle = seo.title || `${profile.name || 'Creator'} (${profile.handle || ''}) — Official Links`;
+      const pageDesc = seo.description || profile.bio || "Official links, channels, and resources.";
+      const pageKeywords = seo.keywords || "links, creator, social channels, blog, affiliate gear";
+      const canonical = seo.canonicalUrl || window.location.origin + window.location.pathname;
+      const ogImage = seo.ogImage || liveAvatar;
+      const robots = seo.robots || "index, follow";
+
+      document.title = pageTitle;
+      const setMeta = (id, attr, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined) el.setAttribute(attr, val);
+      };
+
+      setMeta("meta-desc", "content", pageDesc);
+      setMeta("meta-keywords", "content", pageKeywords);
+      setMeta("meta-robots", "content", robots);
+      setMeta("meta-canonical", "href", canonical);
+
+      setMeta("og-title", "content", pageTitle);
+      setMeta("og-desc", "content", pageDesc);
+      setMeta("og-image", "content", ogImage);
+      setMeta("og-url", "content", canonical);
+
+      setMeta("tw-site", "content", seo.twitterHandle || profile.handle || "");
+      setMeta("tw-title", "content", pageTitle);
+      setMeta("tw-desc", "content", pageDesc);
+      setMeta("tw-image", "content", ogImage);
+
+      // Build Schema.org ProfilePage + Person structured data for Google Search reach
+      const sameAsUrls = socials.map(s => s.url).filter(Boolean);
+      const schemaPayload = {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "url": canonical,
+        "name": pageTitle,
+        "description": pageDesc,
+        "mainEntity": {
+          "@type": "Person",
+          "name": profile.name || "Creator",
+          "alternateName": profile.handle || "",
+          "description": profile.bio || "",
+          "image": liveAvatar,
+          "url": canonical,
+          "sameAs": sameAsUrls
+        }
+      };
+
+      const schemaEl = document.getElementById("schema-jsonld");
+      if (schemaEl) {
+        schemaEl.textContent = JSON.stringify(schemaPayload, null, 2);
+      }
+    }
+
     function loadLocalStats() {
       const saved = localStorage.getItem("bento_hub_stats_v1");
       if (saved) {
@@ -443,7 +553,6 @@ links:
       updateStatsUI();
     }
 
-    // Initialize Firebase if enabled in YAML
     async function initFirebaseIfConfigured(analyticsCfg) {
       const badge = document.getElementById("analytics-mode-badge");
       if (!analyticsCfg || !analyticsCfg.enabled || !analyticsCfg.firebaseConfig?.projectId) {
@@ -478,11 +587,10 @@ links:
           }
         });
       } catch (err) {
-        console.warn("Firebase not active, using local analytics fallback:", err.message);
+        console.warn("Firebase fallback to local storage:", err.message);
       }
     }
 
-    // Record link click
     window.recordClick = async function(linkId) {
       statsData.clicks[linkId] = (statsData.clicks[linkId] || 0) + 1;
       saveLocalStats();
@@ -498,7 +606,6 @@ links:
       }
     };
 
-    // Copy coupon code without triggering parent anchor navigation
     window.copyCoupon = function(event, code) {
       event.preventDefault();
       event.stopPropagation();
@@ -513,7 +620,6 @@ links:
       setTimeout(() => toast.classList.add("hidden"), 2400);
     }
 
-    // Fetch external ./links.yaml or ./links.json with cache busting
     async function loadExternalConfig() {
       const indicator = document.getElementById("source-indicator");
       loadLocalStats();
@@ -543,20 +649,21 @@ links:
         }
       } catch (e) {}
 
-      // Fallback to embedded default YAML
       appConfig = jsyaml.load(DEFAULT_YAML);
       document.getElementById("yaml-editor").value = DEFAULT_YAML;
-      indicator.textContent = "Default Config (Create links.yaml)";
+      indicator.textContent = "Default Config (Ready)";
       renderAll();
     }
 
     function renderAll() {
       applyTheme(appConfig.theme || "cyberpunk");
+      applySEOConfig();
       renderProfile();
       renderSocials();
       renderFeatured();
       renderCategories();
       renderBentoGrid();
+      renderConditionalAffiliateFooter();
       updateStatsUI();
       lucide.createIcons();
     }
@@ -577,11 +684,27 @@ links:
 
     function renderProfile() {
       const p = appConfig.profile || {};
+      const liveAvatarUrl = resolveLiveAvatarUrl(p);
+      const fallbackUrl = p.avatarFallback || p.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80";
+      const sourceBadge = p.avatarSource && p.avatarSource !== "custom"
+        ? `Synced live from ${p.avatarSource}`
+        : "Profile Avatar";
+
       const section = document.getElementById("profile-section");
       section.innerHTML = `
-        <div class="relative inline-block mb-3">
-          <img src="${p.avatar || ''}" alt="${p.name || 'Avatar'}" class="w-24 h-24 rounded-full object-cover border-2 border-cyan-400/50 shadow-xl mx-auto" />
-          ${p.verified ? `<span class="absolute bottom-0 right-0 bg-cyan-500 text-black p-1 rounded-full shadow-lg" title="Verified"><i data-lucide="badge-check" class="w-4 h-4"></i></span>` : ''}
+        <div class="relative inline-block mb-3 group">
+          <img
+            src="${liveAvatarUrl}"
+            onerror="this.onerror=null;this.src='${fallbackUrl}';"
+            alt="${p.name || 'Avatar'}"
+            title="${sourceBadge}"
+            class="w-24 h-24 rounded-full object-cover border-2 border-cyan-400/50 shadow-xl mx-auto bg-slate-800 transition group-hover:scale-105"
+          />
+          ${p.verified ? `
+            <span class="absolute bottom-0 right-0 bg-cyan-500 text-black p-1 rounded-full shadow-lg" title="Verified">
+              <i data-lucide="badge-check" class="w-4 h-4"></i>
+            </span>
+          ` : ''}
         </div>
         <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white">${p.name || ''}</h1>
         <p class="text-xs font-mono-code text-cyan-400 mt-0.5">${p.handle || ''} ${p.location ? `• ${p.location}` : ''}</p>
@@ -593,7 +716,25 @@ links:
           </div>
         ` : ''}
       `;
-      document.getElementById("disclosure-text").textContent = p.disclosure || "";
+    }
+
+    // Automatically show or hide FTC Affiliate Disclosure based on whether affiliate links exist
+    function renderConditionalAffiliateFooter() {
+      const allLinks = appConfig.links || [];
+      const hasAffiliateLinks = allLinks.some(
+        link => (link.category || "").toLowerCase() === "affiliate" && link.url
+      );
+
+      const disclosureBox = document.getElementById("disclosure-box");
+      const disclosureText = document.getElementById("disclosure-text");
+      const text = appConfig.profile?.disclosure || "FTC Disclosure: Some links on this page are affiliate links. I may earn a small commission at no extra cost to you.";
+
+      if (hasAffiliateLinks && text) {
+        disclosureText.textContent = text;
+        disclosureBox.classList.remove("hidden");
+      } else {
+        disclosureBox.classList.add("hidden");
+      }
     }
 
     function renderSocials() {
@@ -603,7 +744,7 @@ links:
         <a
           href="${s.url}"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer me"
           onclick="recordClick('social-${s.platform}-${idx}')"
           class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/40 text-xs font-medium text-slate-200 flex items-center gap-2 transition"
         >
@@ -628,7 +769,7 @@ links:
               ${f.badge || 'FEATURED'}
             </span>
             <a href="${f.url || '#'}" target="_blank" rel="noopener" onclick="recordClick('featured-video')" class="text-xs text-cyan-400 hover:underline flex items-center gap-1">
-              <span>Open Channel</span>
+              <span>Watch on YouTube</span>
               <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
@@ -650,16 +791,50 @@ links:
       `;
     }
 
+    // Enforces Socials First + Hides any Category Tab that has 0 links
     function renderCategories() {
-      const categories = appConfig.categories || [{ id: "all", label: "All" }];
-      const allLinks = appConfig.links || [];
-      const container = document.getElementById("category-tabs");
+      const allLinks = (appConfig.links || []).filter(l => l && l.title && l.url);
+      const rawCategories = appConfig.categories || [
+        { id: "all", label: "All" },
+        { id: "socials", label: "Social Channels 🌐" },
+        { id: "affiliate", label: "Affiliate Gear 🛒" },
+        { id: "blog", label: "Blogs & Guides ✍️" }
+      ];
 
-      container.innerHTML = categories.map(cat => {
+      // Ensure 'all' is 1st and 'socials' is 2nd (first actual category tab)
+      const sortedCategories = [...rawCategories].sort((a, b) => {
+        const rank = (id) => id === "all" ? 0 : id === "socials" ? 1 : 2;
+        return rank(a.id) - rank(b.id);
+      });
+
+      // Filter out any category with 0 items
+      const availableCategories = sortedCategories.filter(cat => {
+        if (cat.id === "all") return allLinks.length > 0;
+        const count = allLinks.filter(l => l.category === cat.id).length;
+        return count > 0;
+      });
+
+      // Reset activeCategory to 'all' if the currently selected category no longer has links
+      if (!availableCategories.some(c => c.id === activeCategory)) {
+        activeCategory = "all";
+      }
+
+      const wrapper = document.getElementById("category-tabs-wrapper");
+
+      // If only 1 non-all category exists (e.g., only socials), hide the redundant filter bar
+      if (availableCategories.length <= 2) {
+        wrapper.classList.add("hidden");
+        wrapper.innerHTML = "";
+        return;
+      }
+
+      wrapper.classList.remove("hidden");
+      wrapper.innerHTML = availableCategories.map(cat => {
         const count = cat.id === "all"
           ? allLinks.length
           : allLinks.filter(l => l.category === cat.id).length;
         const isActive = activeCategory === cat.id;
+
         return `
           <button
             onclick="selectCategory('${cat.id}')"
@@ -690,10 +865,18 @@ links:
     };
 
     function renderBentoGrid() {
-      const links = appConfig.links || [];
+      const rawLinks = (appConfig.links || []).filter(l => l && l.title && l.url);
+
+      // When viewing "All", sort Socials first so social channels lead the grid
+      const orderedLinks = [...rawLinks].sort((a, b) => {
+        if (activeCategory !== "all") return 0;
+        const rank = (cat) => cat === "socials" ? 0 : 1;
+        return rank(a.category) - rank(b.category);
+      });
+
       const grid = document.getElementById("bento-grid");
 
-      const filtered = links.filter(item => {
+      const filtered = orderedLinks.filter(item => {
         const matchesCat = activeCategory === "all" || item.category === activeCategory;
         const matchesQuery = !searchQuery ||
           (item.title && item.title.toLowerCase().includes(searchQuery)) ||
@@ -705,7 +888,7 @@ links:
       if (filtered.length === 0) {
         grid.innerHTML = `
           <div class="col-span-full text-center py-10 text-slate-400 text-sm">
-            No links match your filter.
+            No links match your search.
           </div>
         `;
         return;
@@ -790,7 +973,7 @@ links:
       document.getElementById("stat-ctr").textContent = `${ctr}%`;
 
       const listEl = document.getElementById("click-breakdown-list");
-      const links = appConfig.links || [];
+      const links = (appConfig.links || []).filter(l => l && l.title);
       const maxClicks = Math.max(1, ...links.map(l => statsData.clicks[l.id] || 0));
 
       listEl.innerHTML = links.map(l => {
@@ -810,7 +993,6 @@ links:
       }).join("");
     }
 
-    // Modal & Live Config Editor Helpers
     window.openModal = function(id) {
       document.getElementById(id).classList.remove("hidden");
       updateStatsUI();
@@ -843,7 +1025,6 @@ links:
       showToast("links.yaml copied to clipboard!");
     };
 
-    // Start App
     loadExternalConfig();
   </script>
 </body>
